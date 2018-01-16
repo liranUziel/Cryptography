@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="q1_decrypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="q1_encrypt.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
