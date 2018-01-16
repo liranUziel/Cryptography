@@ -175,6 +175,7 @@ void main()
 	next_L.a = R.a;
 	Extend(R, &Er);
 	printf("Exted of right %d\n", Er.a);
+	k.a = k.a << 1; 
 	k.a = k.a << 1;
 	printf("The shifted key %d \n", k.a);
 	Er.a = Er.a ^ k.a;
@@ -193,6 +194,7 @@ void main()
 	Extend(R, &Er);
 	printf("Exted of right %d\n", Er.a);
 	k.a = k.a << 1;
+	k.a = k.a << 1;
 	printf("The shifted key %d \n", k.a);
 	Er.a = Er.a ^ k.a;
 	printf("Right xor key %d \n", Er.a);
@@ -209,7 +211,7 @@ void main()
 	IP(join, &sol, -1);
 	printf("ENC IP invers %d\n", sol.a);
 	printf("DEC\n");
-	k.a = 220;
+	k.a = 880;
 	m.a = sol.a;
 	printf("IP invers %d\n", m.a);
 	IP(m, &ip_m, 1);
@@ -234,7 +236,7 @@ void main()
 	next_L.a = R.a;
 	Extend(R, &Er);
 	printf("Exted of right %d\n", Er.a);
-	k.a = 110;
+	k.a = 220;
 	printf("The shifted key %d \n", k.a);
 	Er.a = Er.a ^ k.a;
 	printf("Right xor key %d \n", Er.a);
