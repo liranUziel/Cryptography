@@ -98,7 +98,8 @@ int S_BOX[] = { 14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7,
 15,12,8,2,4,9,1,7,5,11,3,14,10,0,6,13 };
 
 //functions
-
+char* subText(char* text, int start, int end);
+char * CBC_encryption(char * plaintext_str, int k, char *IV);
 char* block_encryption(char * plaintext, int k);
 unsigned int get_bit8(bit_8 a, int index);
 void set_bit8(bit_8* x, int index, unsigned int num);
@@ -119,10 +120,12 @@ void feistel(bit_8 R, bit_12 k, bit_8 *to_save);
 
 void main()
 {
-	char ret_msg[2] = "al";
-	int key = 21512;
+	char ret_msg[2] = "tu";
+	int key = 3524;
 	
+
 	printf("this is the orignal text (2 letters) is :%c%c\n", ret_msg[0], ret_msg[1]);
+	//CBC_encryption("liran", 12, "tr");
 	block_encryption(ret_msg, key);
 	system("pause");
 }
@@ -543,7 +546,7 @@ char* block_encryption(char * plaintext_str, int key)
 	//Convert string to int/bit represantion
 	plaintext.a = plaintext_str[0];
 	plaintext.a = plaintext.a << 8;
-	plaintext.a = plaintext_str[1];
+	plaintext.a = plaintext.a + plaintext_str[1];
 
 	//Conver the Key in a bit represantion
 	k.a = key;
@@ -576,8 +579,8 @@ char* block_encryption(char * plaintext_str, int key)
 		if (i == ROUND - 1)
 		{
 			//final iteration doesnt need replacement
-			next_left.a = right.a; 
-			next_right.a = left.a ^ fR.a;
+			next_left.a = left.a ^ fR.a;
+			next_right.a = right.a;
 			right.a = next_right.a;
 			left.a = next_left.a;
 		}
@@ -590,16 +593,64 @@ char* block_encryption(char * plaintext_str, int key)
 			left.a = next_left.a;
 		}
 	}
-	to_ret.a = next_left.a;
+	to_ret.a = left.a;
 	to_ret.a = to_ret.a << 8;
-	to_ret.a = to_ret.a + next_right.a;
+	to_ret.a = to_ret.a + right.a;
 	//finaly invert initial permutation IP^-1
 	IP(to_ret, &joint_16, -1);
 	split_R_L(&right, &left, joint_16);
 	letter[0] = left.a;
 	letter[1] = right.a;
 	letter[2] = '\0';
-	printf("this is after the push");
-	printf("%c%c\n",letter[0],letter[1]);
+	printf("end %c%c\n",letter[0],letter[1]);
+	//return "ok";
+	return letter;
+}
+
+char * CBC_encryption(char * plaintext_str, int k,char *IV)
+{
+	int len = strlen(plaintext_str);
+	int Iteration = len / 2;
+	int i;
+	char *ptext = "";
+	
+	bit_16 iv,plaintext;
+	bit_8 high, low;
+	
+	iv.a = IV[0];
+	iv.a = iv.a << 8;
+	iv.a = iv.a + IV[1];
+		
+	for (i = 0; i < Iteration; i++) 
+	{
+		ptext = subText(plaintext_str, i, i + 2);
+		plaintext.a = ptext[0];
+		plaintext.a = plaintext.a << 8;
+		plaintext.a = plaintext.a + ptext[1];
+		plaintext.a = plaintext.a ^ iv.a;
+		split_R_L(&low, &high, plaintext);
+		ptext[0] = high.a;
+		ptext[0] = low.a;
+		ptext = block_encryption(ptext, k);
+		iv.a = ptext[0];
+		iv.a = iv.a << 8;
+		iv.a = iv.a + ptext[0];
+	}
+
+	
+
 	return "ok";
+}
+
+char* subText(char* text, int start, int end)
+{
+	int i, k = 0;
+	char *sub = (char*)malloc((end - start + 1) * sizeof(char));
+	for (i = start; i < end; i++)
+	{
+		sub[k] = *(text + i);
+		k++;
+	}
+	sub[k] = '\0';
+	return sub;
 }
