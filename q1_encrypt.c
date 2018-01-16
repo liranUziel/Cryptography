@@ -80,7 +80,7 @@ typedef union
 	unsigned int a : 16;
 }bit_16;
 
-int shift_vercor[] = { 1,1,2,2 };//for encryption
+int shift_vercor[] = { 1,1,2,2 };
 
 int IP_MATRIX[] = { 8, 13, 4, 9,
 16, 5, 12, 1,
@@ -120,9 +120,9 @@ void feistel(bit_8 R, bit_12 k, bit_8 *to_save);
 void main()
 {
 	char ret_msg[2] = "al";
-	int key;
+	int key = 21512;
 	
-	printf("this is the orignal text (2 letters) %c%c\n", ret_msg[0], ret_msg[1]);
+	printf("this is the orignal text (2 letters) is :%c%c\n", ret_msg[0], ret_msg[1]);
 	block_encryption(ret_msg, key);
 	system("pause");
 }
@@ -516,11 +516,9 @@ void s_box(bit_6 L, bit_6 R, bit_8 *s_output)
 	int row, col;
 	row = L.bit.a6 * 2 + L.bit.a1;
 	col = L.bit.a2 + L.bit.a3 * 2 + L.bit.a4 * 4 + L.bit.a5 * 8;
-	printf("Left row %d Left colum %d\n", row, col);
-	(*s_output).a = S_BOX[row * 16 + col] << 4;// s_output = L*8 + R
+	(*s_output).a = S_BOX[row * 16 + col] << 4;
 	row = R.bit.a6 * 2 + R.bit.a1;
 	col = R.bit.a2 + R.bit.a3 * 2 + R.bit.a4 * 4 + R.bit.a5 * 8;
-	printf("Right row %d Right colum %d\n", row, col);
 	(*s_output).a = (*s_output).a + S_BOX[row * 16 + col];
 }
 
