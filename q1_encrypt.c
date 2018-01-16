@@ -599,6 +599,7 @@ char* block_encryption(char * plaintext_str, int key)
 	letter[0] = left.a;
 	letter[1] = right.a;
 	letter[2] = '\0';
+	printf("this is after the push");
 	printf("%c%c\n",letter[0],letter[1]);
 	return "ok";
 }
