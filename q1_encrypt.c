@@ -80,6 +80,8 @@ typedef union
 	unsigned int a : 16;
 }bit_16;
 
+int shift_vercor[] = { 1,1,2,2 };//for encryption
+
 int IP_MATRIX[] = { 8, 13, 4, 9,
 16, 5, 12, 1,
 7, 14, 3, 10,
@@ -97,7 +99,7 @@ int S_BOX[] = { 14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7,
 
 //functions
 
-char* block_encryption(bit_16 plaintext, bit_12 k);
+char* block_encryption(char * plaintext, int k);
 unsigned int get_bit8(bit_8 a, int index);
 void set_bit8(bit_8* x, int index, unsigned int num);
 unsigned int get_bit6(bit_6 a, int index);
@@ -117,178 +119,11 @@ void feistel(bit_8 R, bit_12 k, bit_8 *to_save);
 
 void main()
 {
+	char ret_msg[2] = "al";
+	int key;
 	
-	
-	bit_12 k;
-	bit_16 m,ip_m,sol,join,fin;
-	bit_8 R, L,next_L,next_R,output;
-	bit_12 Er;
-	bit_6 Er_L, Er_R;
-	
-	//k.a = 2914;
-	k.a = 3085;
-	m.a = 'a';
-	m.a = m.a << 8;
-	m.a = m.a + 'm'; 
-	printf("key is %d and msg is %d\n",k.a, m.a);
-	printf("stage 1\n");
-	IP(m, &ip_m, 1);
-	printf("IP of m %d\n", ip_m.a);
-	split_R_L(&R, &L, ip_m);
-	printf("Right %d Left %d\n", R.a,L.a);
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	k.a = k.a << 1;
-	k.a = k.a++;
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L,Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Next Right %d  Next Left %d\n", next_R.a, next_L.a);
-	//-> next stage
-	printf("Next satge 2\n");
-	R.a = next_R.a;
-	L.a = next_L.a;
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	k.a = k.a << 1;
-	k.a = k.a++;
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L, Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Next Right %d  Next Left %d\n", next_R.a, next_L.a);
-	//-> next stage
-	printf("Next satge 3\n");
-	R.a = next_R.a;
-	L.a = next_L.a;
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	k.a = k.a << 1; 
-	k.a = k.a << 1;
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L, Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Nest Right %d  Next Left %d\n", next_R.a, next_L.a);
-	//-> next stage
-	printf("Next satge 4\n");
-	R.a = next_R.a;
-	L.a = next_L.a;
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	k.a = k.a << 1;
-	k.a = k.a << 1;
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L, Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Next Right %d  Next Left %d\n", next_R.a, next_L.a);
-	printf("%c%c\n", next_R.a, next_L.a);
-	join.a = next_R.a;
-	join.a = join.a << 8;
-	join.a = join.a + next_L.a;
-	IP(join, &sol, -1);
-	printf("ENC IP invers %d\n", sol.a);
-	printf("DEC\n");
-	k.a = 880;
-	m.a = sol.a;
-	printf("IP invers %d\n", m.a);
-	IP(m, &ip_m, 1);
-	printf("IP of m %d\n", ip_m.a);
-	split_R_L(&R, &L, ip_m);
-	printf("Right %d Left %d\n", R.a, L.a);
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L, Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Next Right %d  Next Left %d\n", next_R.a, next_L.a);
-	printf("Next satge 2\n");
-	R.a = next_R.a;
-	L.a = next_L.a;
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	k.a = 220;
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L, Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Next Right %d  Next Left %d\n", next_R.a, next_L.a);
-	printf("Next satge 3\n");
-	R.a = next_R.a;
-	L.a = next_L.a;
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	k.a = 55;
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L, Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Next Right %d  Next Left %d\n", next_R.a, next_L.a);
-	printf("Next satge 4\n");
-	R.a = next_R.a;
-	L.a = next_L.a;
-	next_L.a = R.a;
-	Extend(R, &Er);
-	printf("Exted of right %d\n", Er.a);
-	k.a = 2075;
-	printf("The shifted key %d \n", k.a);
-	Er.a = Er.a ^ k.a;
-	printf("Right xor key %d \n", Er.a);
-	split_6(&Er_R, &Er_L, Er);
-	printf("E: Right %d Left %d\n", Er_R.a, Er_L.a);
-	s_box(Er_L, Er_R, &output);
-	printf("S Box result %d \n", output.a);
-	next_R.a = output.a ^ L.a;
-	printf("Next Right %d  Next Left %d\n", next_R.a, next_L.a);
-	fin.a = next_R.a;
-	fin.a = fin.a<<8;
-	fin.a = fin.a + next_L.a;
-	IP(fin,&join ,- 1);
-	split_R_L(&R, &L, join);
-	printf("Message is %c%c\n", L.a,R.a);
-	/*
-	char *result;
-	result = block_encryption(m, k);
-	printf("%s", result);
-	*/
+	printf("this is the orignal text (2 letters) %c%c\n", ret_msg[0], ret_msg[1]);
+	block_encryption(ret_msg, key);
 	system("pause");
 }
 
@@ -699,30 +534,36 @@ void feistel(bit_8 R, bit_12 k, bit_8 *to_save)
 	s_box(sL, sR, to_save);
 }
 
-char* block_encryption(bit_16 plaintext, bit_12 k)
+char* block_encryption(char * plaintext_str, int key)
 {
-	bit_16 IP_X, to_ret, joint_16;
+	bit_16 IP_X, to_ret, joint_16,plaintext;
 	bit_8 left, right, next_left, next_right;
 	bit_8 fR;
-	bit_12 sh_key;
+	bit_12 sh_key,k;
 	char letter[3];
-	
-	char *ret_msg = "";
-	int i;
+	int i,j;
+	//Convert string to int/bit represantion
+	plaintext.a = plaintext_str[0];
+	plaintext.a = plaintext.a << 8;
+	plaintext.a = plaintext_str[1];
 
-	int x[] = { 1,1,2,2 };//for encryption
-	//int x[] = { 6,4,2,1 };//for decryption
-	IP(plaintext, &IP_X, 1);// first part of encryption
-	split_R_L(&right, &left, IP_X);//second part
-	//split_R_L(&left, &right, IP_X);//for decryption
-	int j;
-	sh_key.a = k.a;
+	//Conver the Key in a bit represantion
+	k.a = key;
+
+	// first part of encryption - initial permutation
+	IP(plaintext, &IP_X, 1);
+	//second part - take the 2 half and work with each one differently
+	split_R_L(&right, &left, IP_X);
+
+	sh_key.a = k.a;//work on the key and keep the changes
+
+	//Start of DES we can make more round by changing the ROUND number
 	for (i = 0; i < ROUND; i++)
 	{
-		//sh_key.a = k.a;// for decryption
-		for (j = 0; j < x[i]; j++)
+		//make a ciclyc shift to the left by X[i] times
+		for (j = 0; j < shift_vercor[i]; j++)
 		{
-			if (sh_key.a & 2048)// to check the MSB of 12 digit value
+			if (sh_key.a & 2048) // to check the MSB of 12 digit value id one we add 1 in the start
 			{
 				sh_key.a = sh_key.a << 1;
 				sh_key.a++;
@@ -732,16 +573,20 @@ char* block_encryption(bit_16 plaintext, bit_12 k)
 				sh_key.a = sh_key.a << 1;
 			}
 		}
-
-		feistel(right, sh_key, &fR);//call to f
+		//call to - feistel
+		feistel(right, sh_key, &fR);
 		if (i == ROUND - 1)
 		{
-			next_left.a = right.a; //final iteration doesnt need replacement
+			//final iteration doesnt need replacement
+			next_left.a = right.a; 
 			next_right.a = left.a ^ fR.a;
+			right.a = next_right.a;
+			left.a = next_left.a;
 		}
 		else
 		{
-			next_left.a = right.a;//every other iteration does need replacement
+			//every other iteration does need replacement
+			next_left.a = right.a;
 			next_right.a = left.a ^ fR.a;
 			right.a = next_right.a;
 			left.a = next_left.a;
@@ -750,13 +595,12 @@ char* block_encryption(bit_16 plaintext, bit_12 k)
 	to_ret.a = next_left.a;
 	to_ret.a = to_ret.a << 8;
 	to_ret.a = to_ret.a + next_right.a;
+	//finaly invert initial permutation IP^-1
 	IP(to_ret, &joint_16, -1);
 	split_R_L(&right, &left, joint_16);
 	letter[0] = left.a;
 	letter[1] = right.a;
 	letter[2] = '\0';
-	ret_msg = letter;
-	printf("%s\n", ret_msg);
-	//return "ok\n";
-	return ret_msg;
+	printf("%c%c\n",letter[0],letter[1]);
+	return "ok";
 }
